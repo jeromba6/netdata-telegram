@@ -1,5 +1,5 @@
 {
-    "token": "YOUR_BOT_TOKEN",
     "chat_id": "YOUR_TELEGRAM_CHAT_ID",
-    "netdata_servers": ["192.168.0.200", "192.168.0.201"]
+    "netdata_servers": ["192.168.0.20", "192.168.0.21"],
+    "token": "YOUR_BOT_TOKEN"
 }

@@ -18,6 +18,7 @@ def main():
     netdata_servers = config["netdata_servers"]
     poll_interval = config.get("poll_interval", 60)
     resend_interval = config.get("resend_interval", 60 * 60)
+    alive_interval = config.get("alive_interval", 60 * 60 * 24)
  
     # Get emojis
     emojis_unicode = emojis()
@@ -32,9 +33,15 @@ def main():
     last_alarm_times = [0] * len(netdata_servers)
     messages = [""] * len(netdata_servers)
     old_messages = [""] * len(netdata_servers)
+    alive_ts = 0
 
     # Main loop
     while True:
+        # Send alive message
+        if time.time() - alive_ts > alive_interval and alive_interval > 0:
+            send_to_telegram(token, chat_id, f"{emojis_unicode['ok']} netdata_to_telegram.py is alive")
+            alive_ts = time.time()
+
         # Store old message for comparison
         for i, netdata_server in enumerate(netdata_servers):
             old_messages[i] = messages[i]
