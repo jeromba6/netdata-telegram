@@ -7,6 +7,7 @@ import httpx
 import json
 import time
 import atexit
+import socket
 
 
 def main():
@@ -19,6 +20,7 @@ def main():
     poll_interval = config.get("poll_interval", 60)
     resend_interval = config.get("resend_interval", 60 * 60)
     alive_interval = config.get("alive_interval", 60 * 60 * 24)
+    hostname = socket.gethostname()
  
     # Get emojis
     emojis_unicode = emojis()
@@ -27,7 +29,7 @@ def main():
     atexit.register(exit_handler, token, chat_id, f"{emojis_unicode['broken_heart']} netdata_to_telegram.py stopped")
 
     # Send start message
-    send_to_telegram(token, chat_id, f"{emojis_unicode['heart']} netdata_to_telegram.py started")
+    send_to_telegram(token, chat_id, f"{emojis_unicode['heart']} netdata_to_telegram.py started on {hostname}")
 
     # initialize variables
     last_alarm_times = [0] * len(netdata_servers)
@@ -39,7 +41,7 @@ def main():
     while True:
         # Send alive message
         if time.time() - alive_ts > alive_interval and alive_interval > 0:
-            send_to_telegram(token, chat_id, f"{emojis_unicode['ok']} netdata_to_telegram.py is alive")
+            send_to_telegram(token, chat_id, f"{emojis_unicode['ok']} netdata_to_telegram.py is alive on {hostname}")
             alive_ts = time.time()
 
         # Store old message for comparison
