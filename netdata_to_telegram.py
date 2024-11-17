@@ -88,7 +88,7 @@ def alarms_to_message(alarms):
 
     # Check if there are alarms and create message accordingly
     if len(alarms["alarms"]) > 0:
-        message = f"{emojis_unicode['alarm']} There are {len(alarms['alarm'])} Alarm(s) on {alarms['hostname']}:\n"
+        message = f"{emojis_unicode['alarm']} There are {len(alarms['alarms'])} Alarm(s) on {alarms['hostname']}:\n"
         for alarm in alarms["alarms"]:
             message += f"  - {alarm}\n"
     else:
