@@ -55,7 +55,7 @@ def main():
             if succes: 
                 messages[i] = alarms_to_message(alarms)
             else:
-                messages[i] = f"{emojis_unicode['warning']} Error reading alarms from {netdata_server}"
+                messages[i] = f"{emojis_unicode['warning']} Error reading alarms from {netdata_server} @ {hostname}"
 
             # Send message if alarms changed
             if messages[i] != old_messages[i]:

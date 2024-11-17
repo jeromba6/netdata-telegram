@@ -17,7 +17,7 @@ wget -O /tmp/netdata-kickstart.sh https://get.netdata.cloud/kickstart.sh && sh /
 Clone the `netdata-telegram` repository to your local machine:
 
 ```bash
-git clone https://github.com/yourusername/netdata-telegram.git
+git clone https://github.com/jeromba6/netdata-telegram.git
 cd netdata-telegram
 ```
 
