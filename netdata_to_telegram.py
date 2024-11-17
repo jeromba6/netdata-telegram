@@ -26,7 +26,7 @@ def main():
     emojis_unicode = emojis()
 
     # Register exit handler
-    atexit.register(exit_handler, token, chat_id, f"{emojis_unicode['broken_heart']} netdata_to_telegram.py stopped")
+    atexit.register(exit_handler, token, chat_id, f"{emojis_unicode['broken_heart']} netdata_to_telegram.py stopped on {hostname}")
 
     # Send start message
     send_to_telegram(token, chat_id, f"{emojis_unicode['heart']} netdata_to_telegram.py started on {hostname}")
@@ -64,7 +64,7 @@ def main():
                 send_to_telegram(token, chat_id, messages[i])
 
             # Resend message if time has passed
-            if time.time() - last_alarm_times[i] > resend_interval and (alarms["alarms"] or not succes):
+            if time.time() - last_alarm_times[i] > resend_interval and (not succes or alarms["alarms"]):
                 print(f"Resending message on {netdata_server}")
                 send_to_telegram(token, chat_id, messages[i])
                 last_alarm_times[i] = time.time()
