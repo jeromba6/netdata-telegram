@@ -9,7 +9,7 @@ This guide will help you install Netdata and use the `netdata_to_telegram.py` sc
 Follow the official Netdata installation guide to install Netdata on your system:
 
 ```bash
-bash <(curl -Ss https://my-netdata.io/kickstart.sh)
+wget -O /tmp/netdata-kickstart.sh https://get.netdata.cloud/kickstart.sh && sh /tmp/netdata-kickstart.sh
 ```
 
 ### Step 2: Clone the Repository
@@ -43,40 +43,55 @@ Edit the `config.json` file with your Telegram bot token and chat ID:
 ```json
 {
     "telegram_token": "YOUR_TELEGRAM_BOT_TOKEN",
-    "chat_id": "YOUR_CHAT_ID"
+    "chat_id": "YOUR_CHAT_ID",
+    "netdata_servers": ["IP_SERVER_1", "IP_SERVER_2", "IP_SERVER_3"]
 }
 ```
 
 ## Usage
 
-### Step 6: Set Up Netdata Alarm Notification
+### Step 6: Set Up Service to run netdata_to_telegram.py
 
-1. Open the Netdata configuration directory:
+Create a systemd service to run the `netdata_to_telegram.py` script automatically:
 
-```bash
-cd /etc/netdata
-```
-
-2. Edit the `health_alarm_notify.conf` file and set the following variables:
+1. Create a new service file:
 
 ```bash
-DEFAULT_RECIPIENT_TELEGRAM="yourusername"
+sudo nano /etc/systemd/system/netdata-telegram.service
 ```
 
-3. Add the following line to the `health_alarm_notify.conf` file to call the `netdata_to_telegram.py` script:
+2. Add the following content to the service file:
+
+```ini
+[Unit]
+Description=Netdata to Telegram Service
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/python3 /path/to/netdata-telegram/netdata_to_telegram.py
+WorkingDirectory=/path/to/netdata-telegram
+Restart=always
+User=yourusername
+
+[Install]
+WantedBy=multi-user.target
+```
+
+3. Reload systemd to apply the new service:
 
 ```bash
-telegram_send() {
-    /path/to/netdata-telegram/netdata_to_telegram.py "$@"
-}
+sudo systemctl daemon-reload
 ```
 
-### Step 7: Restart Netdata
-
-Restart the Netdata service to apply the changes:
+4. Enable and start the service:
 
 ```bash
-sudo systemctl restart netdata
+sudo systemctl enable netdata-telegram.service
+sudo systemctl start netdata-telegram.service
 ```
 
-Now, Netdata will send alerts to your specified Telegram chat using the `netdata_to_telegram.py` script.
+5. Check the status of the service to ensure it is running:
+
+```bash
+sudo systemctl status netdata-telegram.service
+```

@@ -8,9 +8,6 @@ import json
 import time
 import atexit
 
-poll_interval = 60
-resend_interval = 60 * 60
-
 
 def main():
     # Read configuration
@@ -18,7 +15,9 @@ def main():
         config = json.load(f)
     token = config["token"]
     chat_id = config["chat_id"]
-    netdata_server = config["netdata_server"]
+    netdata_servers = config["netdata_servers"]
+    poll_interval = config.get("poll_interval", 60)
+    resend_interval = config.get("resend_interval", 60 * 60)
  
     # Get emojis
     emojis_unicode = emojis()
@@ -30,31 +29,36 @@ def main():
     send_to_telegram(token, chat_id, f"{emojis_unicode['heart']} netdata_to_telegram.py started")
 
     # initialize variables
-    last_alarm_time = 0
-    message = ""
+    last_alarm_times = [0] * len(netdata_servers)
+    messages = [""] * len(netdata_servers)
+    old_messages = [""] * len(netdata_servers)
 
     # Main loop
     while True:
         # Store old message for comparison
-        old_message = message
+        for i, netdata_server in enumerate(netdata_servers):
+            old_messages[i] = messages[i]
 
-        # Read alarms from netdata
-        alarms = read_netdat_alarms(netdata_server)
+            # Read alarms from netdata
+            alarms, succes = read_netdat_alarms(netdata_server)
 
-        # Convert alarms to message
-        message = alarms_to_message(alarms)
+            # Convert alarms to message
+            if succes: 
+                messages[i] = alarms_to_message(alarms)
+            else:
+                messages[i] = f"{emojis_unicode['warning']} Error reading alarms from {netdata_server}"
 
-        # Send message if alarms changed
-        if message != old_message:
-            print("Alarms changed")
-            last_alarm_time = time.time()
-            send_to_telegram(token, chat_id, message)
+            # Send message if alarms changed
+            if messages[i] != old_messages[i]:
+                print(f"Alarms changed on {netdata_server}")
+                last_alarm_times[i] = time.time()
+                send_to_telegram(token, chat_id, messages[i])
 
-        # Resend message if time has passed
-        if time.time() - last_alarm_time > resend_interval and alarms["alarms"]:
-            print("Resending message")
-            send_to_telegram(token, chat_id, message)
-            last_alarm_time = time.time()
+            # Resend message if time has passed
+            if time.time() - last_alarm_times[i] > resend_interval and (alarms["alarms"] or not succes):
+                print(f"Resending message on {netdata_server}")
+                send_to_telegram(token, chat_id, messages[i])
+                last_alarm_times[i] = time.time()
         time.sleep(poll_interval)
 
 
@@ -89,8 +93,12 @@ def send_to_telegram(token, chat_id, message):
     """
     
     url = f"https://api.telegram.org/bot{token}/sendMessage"
-    data = {"chat_id": chat_id, "text": message}    
-    response = httpx.post(url, data=data)
+    data = {"chat_id": chat_id, "text": message}
+    try:
+        response = httpx.post(url, data=data)
+    except httpx.RequestError as e:
+        print(f"Error sending message to telegram: {e}")
+        return None
     return response.json()
 
 
@@ -100,15 +108,19 @@ def read_netdat_alarms(server):
     """
 
     url = f"http://{server}:19999/api/v1/alarms"
-    response = httpx.get(url)
-    return response.json()
+    try:
+        response = httpx.get(url)
+    except httpx.RequestError as e:
+        print(f"Error reading alarms from {server}: {e}")
+        return None, False
+    return response.json(), True
 
 
 def emojis():
     """
     Return a dictionary with emojis as unicode.
     """
-    
+
     emojis_unicode = {
         "smile": "\U0001F604",
         "sad": "\U0001F621",
