@@ -119,7 +119,7 @@ def read_netdat_alarms(server):
     default_port = 19999
     if not ':' in server:
         server += f':{default_port}'
-    url = f"http://{server}:19999/api/v1/alarms"
+    url = f"http://{server}/api/v1/alarms"
     try:
         response = httpx.get(url)
     except httpx.RequestError as e:
