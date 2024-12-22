@@ -55,7 +55,7 @@ def main():
             # Convert alarms to message
             if succes:
                 # Filter alarms that are to young
-                alarms = [ alarm for alarm in alarms if alarm['last_status_change'] < time.time() - delay ]
+                alarms = [ alarm for alarm in alarms if int(alarm['last_status_change']) < time.time() - delay ]
                 messages[i] = alarms_to_message(alarms)
             else:
                 messages[i] = f"{emojis_unicode['warning']} Error reading alarms from {netdata_server} @ {hostname}"
@@ -74,7 +74,7 @@ def main():
         time.sleep(poll_interval)
 
 
-def exit_handler(token, chat_id, message):
+def exit_handler(token: str, chat_id: str, message: str):
     """
     Send message to telegram when the script is stopped.
     """
