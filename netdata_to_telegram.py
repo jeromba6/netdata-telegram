@@ -55,7 +55,7 @@ def main():
             # Convert alarms to message
             if succes:
                 # Filter alarms that are to young
-                alarms = [ alarm for alarm in alarms if int(alarm['last_status_change']) < time.time() - delay ]
+                # alarms = [ alarm for alarm in alarms if int(alarm['last_status_change']) < time.time() - delay ]
                 messages[i] = alarms_to_message(alarms)
             else:
                 messages[i] = f"{emojis_unicode['warning']} Error reading alarms from {netdata_server} @ {hostname}"
