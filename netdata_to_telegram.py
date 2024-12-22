@@ -20,6 +20,7 @@ def main():
     poll_interval = config.get("poll_interval", 60)
     resend_interval = config.get("resend_interval", 60 * 60)
     alive_interval = config.get("alive_interval", 60 * 60 * 24)
+    delay = config.get("delay", 300)
     hostname = socket.gethostname()
  
     # Get emojis
@@ -52,7 +53,9 @@ def main():
             alarms, succes = read_netdat_alarms(netdata_server)
 
             # Convert alarms to message
-            if succes: 
+            if succes:
+                # Filter alarms that are to young
+                alarms = [ alarm for alarm in alarms if alarm['last_status_change'] < time.time() - delay ]
                 messages[i] = alarms_to_message(alarms)
             else:
                 messages[i] = f"{emojis_unicode['warning']} Error reading alarms from {netdata_server} @ {hostname}"
@@ -78,7 +81,7 @@ def exit_handler(token, chat_id, message):
     send_to_telegram(token, chat_id, message)
 
 
-def alarms_to_message(alarms):
+def alarms_to_message(alarms: dict) -> str:
     """
     Convert alarms to a message.
     """
@@ -96,7 +99,7 @@ def alarms_to_message(alarms):
     return message
 
 
-def send_to_telegram(token, chat_id, message):
+def send_to_telegram(token: str, chat_id: str, message: str) -> dict:
     """
     Send message to telegram chat.
     """
@@ -111,7 +114,7 @@ def send_to_telegram(token, chat_id, message):
     return response.json()
 
 
-def read_netdat_alarms(server):
+def read_netdat_alarms(server: str) -> dict:
     """
     Read alarms from netdata server and return them as a dictionary.
     """
@@ -128,7 +131,7 @@ def read_netdat_alarms(server):
     return response.json(), True
 
 
-def emojis():
+def emojis() -> dict:
     """
     Return a dictionary with emojis as unicode.
     """

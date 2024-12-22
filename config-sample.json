@@ -1,5 +1,10 @@
 {
-    "chat_id": "YOUR_TELEGRAM_CHAT_ID",
-    "netdata_servers": ["192.168.0.20", "192.168.0.21"],
-    "token": "YOUR_BOT_TOKEN"
+    // !!! Remove comments before using this file !!!
+    "chat_id": "YOUR_TELEGRAM_CHAT_ID", // Required - Chat ID where you want to receive notifications
+    "netdata_servers": ["192.168.0.20", "192.168.0.21", "192.168.0.200:19999"], // Required - Netdata servers to monitor
+    "token": "YOUR_BOT_TOKEN",          // Required - Telegram Bot Token
+    "poll_interval": 60,                // Optional - Poll interval in seconds (default: 60)
+    "resend_interval": 3600,            // Optional - Resend interval in seconds (default: 300 = 1 hour)
+    "alive_interval": 86400,            // Optional - Alive interval in seconds (default: 86400 = 1 day)
+    "delay": 300                        // Optional - Number of seconds a alerts should be active before sending (default: 300 = 5 minutes)
 }
