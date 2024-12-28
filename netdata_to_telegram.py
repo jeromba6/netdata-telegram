@@ -35,15 +35,20 @@ def main():
     # initialize variables
     last_alarm_times = [0] * len(netdata_servers)
     messages = [""] * len(netdata_servers)
+    message = ""
     old_messages = [""] * len(netdata_servers)
-    alive_ts = 0
+    last_message_timestamp = 0
 
     # Main loop
     while True:
         # Send alive message
-        if time.time() - alive_ts > alive_interval and alive_interval > 0:
+        if time.time() - last_message_timestamp > alive_interval and alive_interval > 0:
             send_to_telegram(token, chat_id, f"{emojis_unicode['ok']} netdata_to_telegram.py is alive on {hostname}")
-            alive_ts = time.time()
+            last_message_timestamp = time.time()
+
+        old_message = message
+        message = f"Monitoring from {hostname}:\n"
+        active_alarms = False
 
         # Store old message for comparison
         for i, netdata_server in enumerate(netdata_servers):
@@ -56,21 +61,19 @@ def main():
             if succes:
                 # Filter alarms that are to young
                 alarms['alarms'] = [ alarm for alarm in alarms['alarms'] if int(alarm['last_status_change']) < time.time() - delay ]
+                if len(alarms['alarms']) > 0:
+                    active_alarms = True
                 messages[i] = alarms_to_message(alarms)
             else:
                 messages[i] = f"{emojis_unicode['warning']} Error reading alarms from {netdata_server} @ {hostname}"
 
-            # Send message if alarms changed
-            if messages[i] != old_messages[i]:
-                print(f"Alarms changed on {netdata_server}")
-                last_alarm_times[i] = time.time()
-                send_to_telegram(token, chat_id, messages[i])
+            message += f"{messages[i]}\n"
 
-            # Resend message if time has passed
-            if time.time() - last_alarm_times[i] > resend_interval and (not succes or alarms["alarms"]):
-                print(f"Resending message on {netdata_server}")
-                send_to_telegram(token, chat_id, messages[i])
-                last_alarm_times[i] = time.time()
+        # Send message if it has changed
+        if message != old_message or (time.time() - last_message_timestamp > resend_interval and active_alarms) or time.time() - last_message_timestamp > alive_interval:
+            send_to_telegram(token, chat_id, message)
+            last_message_timestamp = time.time()
+            
         time.sleep(poll_interval)
 
 
@@ -91,11 +94,11 @@ def alarms_to_message(alarms: dict) -> str:
 
     # Check if there are alarms and create message accordingly
     if len(alarms["alarms"]) > 0:
-        message = f"{emojis_unicode['alarm']} There are {len(alarms['alarms'])} Alarm(s) on {alarms['hostname']}:\n"
+        message = f"- {emojis_unicode['alarm']} There are {len(alarms['alarms'])} Alarm(s) on {alarms['hostname']}:\n"
         for alarm in alarms["alarms"]:
             message += f"  - {alarm}\n"
     else:
-        message = f"{emojis_unicode['green_check']} No alarms on {alarms['hostname']}"
+        message = f"- {emojis_unicode['green_check']} No alarms on {alarms['hostname']}"
     return message
 
 
