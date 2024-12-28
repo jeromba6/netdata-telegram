@@ -33,27 +33,20 @@ def main():
     send_to_telegram(token, chat_id, f"{emojis_unicode['heart']} netdata_to_telegram.py started on {hostname}")
 
     # initialize variables
-    last_alarm_times = [0] * len(netdata_servers)
     messages = [""] * len(netdata_servers)
     message = ""
-    old_messages = [""] * len(netdata_servers)
     last_message_timestamp = 0
 
     # Main loop
     while True:
-        # Send alive message
-        if time.time() - last_message_timestamp > alive_interval and alive_interval > 0:
-            send_to_telegram(token, chat_id, f"{emojis_unicode['ok']} netdata_to_telegram.py is alive on {hostname}")
-            last_message_timestamp = time.time()
-
+        # Prepare variables for checking alarms
         old_message = message
         message = f"Monitoring from {hostname}:\n"
         active_alarms = False
 
         # Store old message for comparison
         for i, netdata_server in enumerate(netdata_servers):
-            old_messages[i] = messages[i]
-
+            
             # Read alarms from netdata
             alarms, succes = read_netdat_alarms(netdata_server)
 
@@ -69,7 +62,10 @@ def main():
 
             message += f"{messages[i]}\n"
 
-        # Send message if it has changed
+        # Send message when:
+        # - Something has changed or
+        # - Resend interval has passed and there are active alarms or
+        # - Alive interval has passed
         if message != old_message or (time.time() - last_message_timestamp > resend_interval and active_alarms) or time.time() - last_message_timestamp > alive_interval:
             send_to_telegram(token, chat_id, message)
             last_message_timestamp = time.time()
