@@ -53,7 +53,7 @@ def main():
             # Convert alarms to message
             if succes:
                 # Filter alarms that are to young
-                print(alarms)
+                print(json.dumps(alarms, indent=4))
                 alarms['alarms'] = [ alarm for alarm in alarms['alarms'] if int(alarm['last_status_change']) < time.time() - delay ]
                 if len(alarms['alarms']) > 0:
                     active_alarms = True
