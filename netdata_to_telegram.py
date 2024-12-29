@@ -53,14 +53,8 @@ def main():
             # Convert alarms to message
             if succes:
                 # Filter alarms that are to young
-                print(json.dumps(alarms, indent=4))
                 new_alarms = []
-                # alarms['alarms'] = [ alarm for alarm in alarms['alarms'] if int(alarm['last_status_change']) < time.time() - delay]
                 for alarm in alarms['alarms']:
-
-                    print("Alarm:")
-                    
-                    print(json.dumps(alarm, indent=4))
                     if alarms['alarms'][alarm]['last_status_change'] > time.time() - delay:
                         continue
                     new_alarms.append(alarm)
@@ -103,8 +97,7 @@ def alarms_to_message(alarms: dict) -> str:
     if len(alarms["alarms"]) > 0:
         message = f"- {emojis_unicode['alarm']} There are {len(alarms['alarms'])} Alarm(s) on {alarms['hostname']}:\n"
         for alarm in alarms["alarms"]:
-            print(alarm)
-            message += f"  - {alarms['alarms'][alarm]['summary']}\n"
+            message += f"  - {alarm}\n"
     else:
         message = f"- {emojis_unicode['green_check']} No alarms on {alarms['hostname']}"
     return message
