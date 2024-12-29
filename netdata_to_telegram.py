@@ -56,6 +56,7 @@ def main():
                 print(json.dumps(alarms, indent=4))
                 new_alarms = []
                 for alarm in alarms['alarms']:
+                    print("Alarm:")
                     print(json.dumps(alarm, indent=4))
                     if int(alarm['last_status_change']) < time.time() - delay:
                         new_alarms.append(alarm)
