@@ -62,7 +62,7 @@ def main():
                     
                     print(json.dumps(alarm, indent=4))
                     if alarms['alarms'][alarm]['last_status_change'] > time.time() - delay:
-                        continue:
+                        continue
                     new_alarms.append(alarm)
                 alarms['alarms'] = new_alarms
                 if len(alarms['alarms']) > 0:
