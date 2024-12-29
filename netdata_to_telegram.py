@@ -53,7 +53,12 @@ def main():
             # Convert alarms to message
             if succes:
                 # Filter alarms that are to young
-                alarms['alarms'] = [ alarm for alarm in alarms['alarms'] if int(alarm['last_status_change']) < time.time() - delay ]
+                new_alarms = []
+                for alarm in alarms['alarms']:
+                    if alarms['alarms'][alarm]['last_status_change'] > time.time() - delay:
+                        continue
+                    new_alarms.append(alarm)
+                alarms['alarms'] = new_alarms
                 if len(alarms['alarms']) > 0:
                     active_alarms = True
                 messages[i] = alarms_to_message(alarms)
