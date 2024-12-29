@@ -103,7 +103,7 @@ def alarms_to_message(alarms: dict) -> str:
     if len(alarms["alarms"]) > 0:
         message = f"- {emojis_unicode['alarm']} There are {len(alarms['alarms'])} Alarm(s) on {alarms['hostname']}:\n"
         for alarm in alarms["alarms"]:
-            message += f"  - {alarm}\n"
+            message += f"  - {alarms['alarms'][alarm]['summary']}\n"
     else:
         message = f"- {emojis_unicode['green_check']} No alarms on {alarms['hostname']}"
     return message
