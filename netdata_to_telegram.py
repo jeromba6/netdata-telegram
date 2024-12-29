@@ -55,7 +55,7 @@ def main():
                 # Filter alarms that are to young
                 print(json.dumps(alarms, indent=4))
                 new_alarms = []
-                alarms['alarms'] = [ alarm for alarm in alarms['alarms'] if int(alarm['last_status_change']) < time.time() - delay]
+                # alarms['alarms'] = [ alarm for alarm in alarms['alarms'] if int(alarm['last_status_change']) < time.time() - delay]
                 for alarm in alarms['alarms']:
 
                     print("Alarm:")
