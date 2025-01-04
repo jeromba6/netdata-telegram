@@ -8,6 +8,7 @@ import json
 import time
 import atexit
 import socket
+import copy
 
 
 def main():
@@ -22,6 +23,7 @@ def main():
     alive_interval = config.get("alive_interval", 60 * 60 * 24)
     delay = config.get("delay", 300)
     hostname = socket.gethostname()
+    client = copy.deepcopy(netdata_servers)
  
     # Get emojis
     emojis_unicode = emojis()
@@ -53,6 +55,7 @@ def main():
             # Convert alarms to message
             if succes:
                 # Filter alarms that are to young
+                client[i] = alarms['hostname']
                 new_alarms = []
                 for alarm in alarms['alarms']:
                     if alarms['alarms'][alarm]['last_status_change'] > time.time() - delay:
@@ -63,7 +66,7 @@ def main():
                     active_alarms = True
                 messages[i] = alarms_to_message(alarms)
             else:
-                messages[i] = f"{emojis_unicode['warning']} Error reading alarms from {netdata_server} @ {hostname}"
+                messages[i] = f"{emojis_unicode['warning']} Error reading alarms for {client[i]}"
 
             message += f"{messages[i]}\n"
 
