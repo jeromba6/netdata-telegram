@@ -66,7 +66,7 @@ def main():
                     active_alarms = True
                 messages[i] = alarms_to_message(alarms)
             else:
-                client = f'{clients[i]} ({netdata_server[i]})' if clients[i] != netdata_server[i] else clients[i]
+                client = f'{clients[i]} ({netdata_servers[i]})' if clients[i] != netdata_servers[i] else clients[i]
                 messages[i] = f"- {emojis_unicode['warning']} Error reading alarms for {client}"
 
             message += f"{messages[i]}\n"
