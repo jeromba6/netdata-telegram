@@ -13,7 +13,7 @@ def main():
     with open("config.json") as f:
         config = json.load(f)
     token = config["token"]
-    chat_id = config["chat_id"]
+    chat_id = config["chat_id_speed"]
     delay = config.get("delay", 300)
     hostname = socket.gethostname()
 
@@ -22,19 +22,20 @@ def main():
 
     # Remove lines with "Testing" and "Download" or "Upload"
     result = [line for line in result if "Testing" not in line and ("Download" not in line or "Upload" not in line)]
+    result = [line for line in result if "Selecting best" not in line]
     result = [line for line in result if "Retrieving" not in line]
- 
+
     result = "\n".join(result)
 
     # Send the result to telegram
-    send_to_telegram(token, chat_id, f"Speedtest on {hostname}\n{result}")
+    print(send_to_telegram(token, chat_id, f"Speedtest on {hostname}\n{result}"))
 
 
 def send_to_telegram(token: str, chat_id: str, message: str) -> dict:
     """
     Send message to telegram chat.
     """
-    
+
     url = f"https://api.telegram.org/bot{token}/sendMessage"
     data = {"chat_id": chat_id, "text": message}
     try:
