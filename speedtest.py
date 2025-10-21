@@ -35,7 +35,6 @@ def send_to_telegram(token: str, chat_id: str, message: str) -> dict:
     """
     Send message to telegram chat.
     """
-
     url = f"https://api.telegram.org/bot{token}/sendMessage"
     data = {"chat_id": chat_id, "text": message}
     try:
