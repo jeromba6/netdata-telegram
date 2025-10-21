@@ -60,7 +60,11 @@ def main():
                 for alarm in alarms['alarms']:
                     if alarms['alarms'][alarm]['last_status_change'] > time.time() - delay:
                         continue
-                    new_alarms.append(alarm)
+                    for ignore_check in config.get("ingnore_checks", []):
+                        if alarm.startswith(ignore_check):
+                            break
+                    else:
+                        new_alarms.append(alarm)
                 alarms['alarms'] = new_alarms
                 if len(alarms['alarms']) > 0:
                     active_alarms = True
