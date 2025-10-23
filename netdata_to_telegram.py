@@ -24,7 +24,7 @@ def main():
     delay = config.get("delay", 300)
     hostname = socket.gethostname()
     clients = copy.deepcopy(netdata_servers)
- 
+
     # Get emojis
     emojis_unicode = emojis()
 
@@ -48,7 +48,7 @@ def main():
 
         # Store old message for comparison
         for i, netdata_server in enumerate(netdata_servers):
-            
+
             # Read alarms from netdata
             alarms, succes = read_netdat_alarms(netdata_server)
 
@@ -60,8 +60,8 @@ def main():
                 for alarm in alarms['alarms']:
                     if alarms['alarms'][alarm]['last_status_change'] > time.time() - delay:
                         continue
-                    for ignore_check in config.get("ingnore_checks", []):
-                        if alarm.startswith(ignore_check):
+                    for ignore_check in config.get("ignore_checks", []):
+                        if ignore_check in alarm:
                             break
                     else:
                         new_alarms.append(alarm)
@@ -82,7 +82,7 @@ def main():
         if message != old_message or (time.time() - last_message_timestamp > resend_interval and active_alarms) or time.time() - last_message_timestamp > alive_interval:
             send_to_telegram(token, chat_id, message)
             last_message_timestamp = time.time()
-            
+
         time.sleep(poll_interval)
 
 
@@ -97,7 +97,7 @@ def alarms_to_message(alarms: dict) -> str:
     """
     Convert alarms to a message.
     """
-    
+
     # Get emojis
     emojis_unicode = emojis()
 
