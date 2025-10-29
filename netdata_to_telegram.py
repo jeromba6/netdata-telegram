@@ -22,6 +22,7 @@ def main():
     resend_interval = config.get("resend_interval", 60 * 60)
     alive_interval = config.get("alive_interval", 60 * 60 * 24)
     delay = config.get("delay", 300)
+    extended_delay = config.get("extended_delay", 3600)
     hostname = socket.gethostname()
     clients = copy.deepcopy(netdata_servers)
 
@@ -59,6 +60,13 @@ def main():
                 new_alarms = []
                 for alarm in alarms['alarms']:
                     if alarms['alarms'][alarm]['last_status_change'] > time.time() - delay:
+                        continue
+                    for ignore_check in config.get("extended_delay_checks", []):
+                        continue_outer_loop = False
+                        if ignore_check in alarm and alarms['alarms'][alarm]['last_status_change'] > time.time() - extended_delay:
+                            continue_outer_loop = True
+                            break
+                    if continue_outer_loop:
                         continue
                     for ignore_check in config.get("ignore_checks", []):
                         if ignore_check in alarm:
@@ -115,7 +123,7 @@ def send_to_telegram(token: str, chat_id: str, message: str) -> dict:
     """
     Send message to telegram chat.
     """
-    
+
     url = f"https://api.telegram.org/bot{token}/sendMessage"
     data = {"chat_id": chat_id, "text": message}
     try:
